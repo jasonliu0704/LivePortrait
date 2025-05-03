@@ -81,3 +81,6 @@ if __name__ == "__main__":
         print(f"File uploaded successfully. Blob URL: {blob_url}")
     except Exception as e:
         print(f"Error: {str(e)}")
+
+# python store.py ~/Downloads/0.png -d assets
+# azcopy login --account-name stazureaitre643816552456 --account-key DefaultEndpointsProtocol=https;AccountName=stjasonliu07032540789180;AccountKey=/iPu+qMSWor+9SVqsdiaItknXki6giBvXVKH6YE0TMKIq3pT+gB3Jh/qaJ+xr4BE6NM2Eyup/v//+AStnUjxJg==;EndpointSuffix=core.windows.net
