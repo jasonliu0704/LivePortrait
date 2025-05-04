@@ -52,33 +52,83 @@ def upload_to_blob_storage(
     except Exception as e:
         raise Exception(f"Failed to upload file to Azure Blob Storage: {str(e)}")
 
+def upload_directory_to_blob_storage(
+    connection_string: str,
+    container_name: str,
+    local_dir_path: str,
+    directory: str = None
+) -> list:
+    """
+    Recursively upload a directory to Azure Blob Storage, preserving structure.
+
+    Args:
+        connection_string: Azure Storage account connection string
+        container_name: Name of the container to upload to
+        local_dir_path: Path to the local directory to upload
+        directory: Optional directory path within the container
+
+    Returns:
+        list: List of URLs of the uploaded blobs
+    """
+    uploaded_urls = []
+    for root, _, files in os.walk(local_dir_path):
+        for file in files:
+            local_file_path = os.path.join(root, file)
+            # Compute relative path for blob_name
+            rel_path = os.path.relpath(local_file_path, local_dir_path)
+            blob_name = rel_path.replace("\\", "/")  # For Windows compatibility
+            # If directory is provided, prepend it
+            if directory:
+                blob_name = f"{directory.strip('/')}/{blob_name}"
+            url = upload_to_blob_storage(
+                connection_string=connection_string,
+                container_name=container_name,
+                local_file_path=local_file_path,
+                blob_name=blob_name
+            )
+            uploaded_urls.append(url)
+    return uploaded_urls
+
 # Example usage:
 if __name__ == "__main__":
     # Set up command line argument parser
-    parser = argparse.ArgumentParser(description='Upload a file to Azure Blob Storage')
-    parser.add_argument('file_path', type=str, help='Path to the file you want to upload')
+    parser = argparse.ArgumentParser(description='Upload a file or directory to Azure Blob Storage')
+    parser.add_argument('path', type=str, help='Path to the file or directory you want to upload')
     parser.add_argument('--directory', '-d', type=str, help='Directory path within the container (e.g., "images/profile")', default=None)
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Verify if file exists
-    if not os.path.exists(args.file_path):
-        print(f"Error: File '{args.file_path}' does not exist")
-        exit(1)
-
     # Azure storage settings
     CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=stjasonliu07032540789180;AccountKey=/iPu+qMSWor+9SVqsdiaItknXki6giBvXVKH6YE0TMKIq3pT+gB3Jh/qaJ+xr4BE6NM2Eyup/v//+AStnUjxJg==;EndpointSuffix=core.windows.net"
     CONTAINER_NAME = "liveportrait"
 
+    if not os.path.exists(args.path):
+        print(f"Error: Path '{args.path}' does not exist")
+        exit(1)
+
     try:
-        blob_url = upload_to_blob_storage(
-            connection_string=CONNECTION_STRING,
-            container_name=CONTAINER_NAME,
-            local_file_path=args.file_path,
-            directory=args.directory
-        )
-        print(f"File uploaded successfully. Blob URL: {blob_url}")
+        if os.path.isfile(args.path):
+            blob_url = upload_to_blob_storage(
+                connection_string=CONNECTION_STRING,
+                container_name=CONTAINER_NAME,
+                local_file_path=args.path,
+                directory=args.directory
+            )
+            print(f"File uploaded successfully. Blob URL: {blob_url}")
+        elif os.path.isdir(args.path):
+            urls = upload_directory_to_blob_storage(
+                connection_string=CONNECTION_STRING,
+                container_name=CONTAINER_NAME,
+                local_dir_path=args.path,
+                directory=args.directory
+            )
+            print(f"Directory uploaded successfully. {len(urls)} files uploaded.")
+            for url in urls:
+                print(url)
+        else:
+            print(f"Error: Path '{args.path}' is neither a file nor a directory.")
+            exit(1)
     except Exception as e:
         print(f"Error: {str(e)}")
 
