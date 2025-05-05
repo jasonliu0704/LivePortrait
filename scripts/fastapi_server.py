@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 async def health_check():
     return {"status": "ok"}
 
-@app.post("/generate-video")
+@app.post("/image-video")
 async def generate_video(
     image: UploadFile = File(...),
     duration: Optional[int] = 5,
