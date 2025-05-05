@@ -27,6 +27,10 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.post("/generate-video")
 async def generate_video(
     image: UploadFile = File(...),
