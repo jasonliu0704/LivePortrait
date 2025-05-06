@@ -31,6 +31,11 @@ logger = logging.getLogger(__name__)
 async def health_check():
     return {"status": "ok"}
 
+def get_filename_without_extension(file_path):
+    base_name = os.path.basename(file_path)
+    name_without_extension, _ = os.path.splitext(base_name)
+    return name_without_extension
+
 @app.post("/image-video")
 async def generate_video(
     image: UploadFile = File(...),
@@ -56,7 +61,7 @@ async def generate_video(
         # output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
         logger.info(f"Received image: {image.filename}")
         logger.info(f"Saving uploaded image to: {input_image_path}")
-        name_prefix = os.path.basename(image_prefix).split('.')[0]
+        name_prefix =get_filename_without_extension(name_prefix)
 
         # Save uploaded image
         with open(input_image_path, "wb") as buffer:
