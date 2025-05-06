@@ -50,7 +50,7 @@ async def generate_video(
     """
     # Generate unique filenames
     image_prefix = f"{uuid.uuid4()}_{image.filename}"
-    input_image_path = os.path.join(TEMP_DIR, name_prefix)
+    input_image_path = os.path.join(TEMP_DIR, image_prefix)
     try:
 
         # output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
@@ -72,7 +72,7 @@ async def generate_video(
         logger.info(f"Running LivePortrait inference command: {inference_cmd}")
         subprocess.run(inference_cmd, shell=True, check=True)
         # Extract the filename without extension from input_image_path
-        output_video_path = f"animations/{image_prefix}--video.mp4"
+        output_video_path = f"animations/{name_prefix}--video.mp4"
         logger.info(f"Video generated at: {output_video_path}")
 
         # Return the video file
