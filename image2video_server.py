@@ -50,11 +50,12 @@ async def generate_video(
     """
     try:
         # Generate unique filenames
-        input_image_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}_{image.filename}")
+        image_prefix = f"{uuid.uuid4()}_{image.filename}"
+        input_image_path = os.path.join(TEMP_DIR, name_prefix)
         # output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
         logger.info(f"Received image: {image.filename}")
         logger.info(f"Saving uploaded image to: {input_image_path}")
-        image_prefix = os.path.basename(image.filename).split('.')[0]
+        name_prefix = os.path.basename(image_prefix).split('.')[0]
 
         # Save uploaded image
         with open(input_image_path, "wb") as buffer:
@@ -65,11 +66,12 @@ async def generate_video(
         # Generate video using ffmpeg
         # This creates a video that shows the static image for the specified duration
         # Use LivePortrait's inference.py instead of ffmpeg
-        driving_video_path = "assets/examples/driving/video.mp4"  # Fixed driving video path
+        driving_video_path = "assets/examples/driving/video.pkl"  # Fixed driving video path
         inference_cmd = f"python inference.py -s {input_image_path} -d {driving_video_path}"
         logger.info(f"Running LivePortrait inference command: {inference_cmd}")
         subprocess.run(inference_cmd, shell=True, check=True)
-        output_video_path = f"animations/{image_prefix}--d0.mp4"
+        # Extract the filename without extension from input_image_path
+        output_video_path = f"animations/{name_prefix}--video.mp4"
         logger.info(f"Video generated at: {output_video_path}")
 
         # Return the video file
