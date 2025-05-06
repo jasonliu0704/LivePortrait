@@ -61,7 +61,7 @@ async def generate_video(
         # output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
         logger.info(f"Received image: {image.filename}")
         logger.info(f"Saving uploaded image to: {input_image_path}")
-        name_prefix =get_filename_without_extension(name_prefix)
+        name_prefix =get_filename_without_extension(image_prefix)
 
         # Save uploaded image
         with open(input_image_path, "wb") as buffer:
