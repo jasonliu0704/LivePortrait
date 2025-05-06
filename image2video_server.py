@@ -51,9 +51,10 @@ async def generate_video(
     try:
         # Generate unique filenames
         input_image_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}_{image.filename}")
-        output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
+        # output_video_path = os.path.join(TEMP_DIR, f"{uuid.uuid4()}.mp4")
         logger.info(f"Received image: {image.filename}")
         logger.info(f"Saving uploaded image to: {input_image_path}")
+        image_prefix = os.path.basename(image.filename).split('.')[0]
 
         # Save uploaded image
         with open(input_image_path, "wb") as buffer:
@@ -68,6 +69,7 @@ async def generate_video(
         inference_cmd = f"python inference.py -s {input_image_path} -d {driving_video_path}"
         logger.info(f"Running LivePortrait inference command: {inference_cmd}")
         subprocess.run(inference_cmd, shell=True, check=True)
+        output_video_path = f"animations/{image_prefix}--d0.mp4"
         logger.info(f"Video generated at: {output_video_path}")
 
         # Return the video file
@@ -93,3 +95,5 @@ async def generate_video(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# uvicorn image2video_server:app --host 0.0.0.0 --port 8888
