@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Video from Image</title>
+</head>
+<body>
+  <h1>Generate Video from Image</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="generateVideo()">Generate Video</button>
+  <br><br>
+  <video id="resultVideo" controls style="display:none; max-width: 400px;"></video>
+  <a id="downloadLink" style="display:none;">Download Video</a>
+
+  <script>
+    async function generateVideo() {
+      const input = document.getElementById('imageInput');
+      if (!input.files.length) {
+        alert('Please select an image file.');
+        return;
+      }
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+      // Optionally add duration and fps
+      // formData.append('duration', 5);
+      // formData.append('fps', 30);
+
+      try {
+        const response = await fetch('http://13.89.201.81:8888/image-video', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert('Error: ' + (error.error || response.statusText));
+          return;
+        }
+
+        // Get the video blob
+        const blob = await response.blob();
+        const videoUrl = URL.createObjectURL(blob);
+
+        // Show the video
+        const videoElem = document.getElementById('resultVideo');
+        videoElem.src = videoUrl;
+        videoElem.style.display = 'block';
+
+        // Provide a download link
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = videoUrl;
+        downloadLink.download = 'generated_video.mp4';
+        downloadLink.textContent = 'Download Video';
+        downloadLink.style.display = 'inline';
+      } catch (err) {
+        alert('Request failed: ' + err);
+      }
+    }
+  </script>
+</body>
+</html>

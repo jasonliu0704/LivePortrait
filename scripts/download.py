@@ -99,8 +99,8 @@ if __name__ == "__main__":
     CONTAINER_NAME = "liveportrait"
 
     try:
-        # If blob_name ends with a slash or is a directory, treat as directory download
-        if args.blob_name.endswith("/") or (args.output and os.path.isdir(args.output)):
+        # Only treat as directory download if blob_name ends with a slash
+        if args.blob_name.endswith("/"):
             files = download_directory_from_blob_storage(
                 connection_string=CONNECTION_STRING,
                 container_name=CONTAINER_NAME,
@@ -111,11 +111,15 @@ if __name__ == "__main__":
             for f in files:
                 print(f)
         else:
+            output_path = args.output
+            # If output is a directory, save the file inside that directory
+            if output_path and os.path.isdir(output_path):
+                output_path = os.path.join(output_path, os.path.basename(args.blob_name))
             file_path = download_from_blob_storage(
                 connection_string=CONNECTION_STRING,
                 container_name=CONTAINER_NAME,
                 blob_name=args.blob_name,
-                local_file_path=args.output
+                local_file_path=output_path
             )
             print(f"File downloaded successfully to: {file_path}")
     except Exception as e:
