@@ -84,10 +84,10 @@ async def generate_video(
         if os.path.exists(input_image_path):
             os.remove(input_image_path)
             logger.info(f"Deleted temporary image: {input_image_path}")
-        if os.path.exists(output_video_path):
-            os.remove(output_video_path)
-            logger.info(f"Deleted temporary video: {output_video_path}")
+        # if os.path.exists(output_video_path):
+        #     os.remove(output_video_path)
+        #     logger.info(f"Deleted temporary video: {output_video_path}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
